@@ -177,9 +177,7 @@ In addition to the core Flask/SQLAlchemy stack, the project integrates **14 addi
 | M4 | OOP + design-pattern write-up   | [docs/oop-and-patterns.md](docs/oop-and-patterns.md) — 5 OOP concepts + 5 design patterns, each linked to exact file:line | ✅ done |
 | M5 | IT106 final documentation       | [docs/final-documentation.md](docs/final-documentation.md) — all 12 sections in PDF §VI, with file:line cross-refs | ✅ done |
 | M5.5 | Quality & framework integration | **14 additional frameworks** integrated across 6 commits — see "Framework stack" section below. pytest (26 tests), Flask-Migrate, Flask-Limiter, Flask-Talisman, Flask-Compress, Flask-Caching, openpyxl (Excel), xhtml2pdf (PDF receipts), HTMX, Alpine.js, marshmallow + Flask-Smorest + Swagger UI at `/api/v2/docs` | ✅ done |
-| M6 | System screenshots              | `docs/screenshots/` — login, dashboard, add form, data table, edit, delete, search, API tests | ⏭ next |
-| M7 | Presentation deck (10–15 min)   | `docs/presentation.pptx` (or PDF) — 11 required sections in PDF §VII        | ⬜ todo |
-| M8 | User manual + submission ZIP    | `docs/user-manual.pdf`, SQL dump, individual-contribution form, GitHub link, `IT106_FinalProject_<Group>_LostAndFound.zip` per PDF §VIII | ⬜ todo |
+| M6 | System screenshots              | `docs/screenshots/` — login, dashboard, add form, data table, edit, delete, search, API tests | ✅ done |
 
 ### How rubric points map to milestones
 
