@@ -191,7 +191,6 @@ In addition to the core Flask/SQLAlchemy stack, the project integrates **14 addi
 | Validation & Basic Security               |     10 | ✅ Already built · documented in [docs/final-documentation.md §4–§5](docs/final-documentation.md) (RBAC, scrypt password/token hashing, CSRF, ENUM constraints) |
 | Testing & Debugging                       |      5 | ✅ M3 shipped — Postman collection + testing-results table; M5 references it |
 | Documentation                             |      5 | ✅ M5 shipped — [docs/final-documentation.md](docs/final-documentation.md) covers all 12 §VI sections |
-| Presentation & Demonstration              |      5 | **M7**                              |
 
 ---
 
