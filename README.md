@@ -203,7 +203,7 @@ In addition to the core Flask/SQLAlchemy stack, the project integrates **14 addi
 
 ### Setup
 ```powershell
-git clone https://github.com/<your-user>/lost-and-found.git
+git clone https://github.com/not-yohsn/it106_lost_and_found.git
 cd lost-and-found
 
 python -m venv venv
@@ -294,12 +294,9 @@ UPDATE users SET role = 'admin' WHERE email = 'someone@example.com';
 ├── database/
 │   └── schema.sql           # MySQL schema for the 7 tables
 ├── docs/                    # M3–M8: IT106 submission artifacts
-│   ├── api-tests/           # Postman collection + screenshots (M3)
-│   ├── screenshots/         # system screenshots (M6)
-│   ├── oop-and-patterns.md  # OOP + design pattern write-up (M4)
-│   ├── final-documentation.md  # IT106 §VI format (M5)
-│   ├── user-manual.pdf      # short user manual (M8)
-│   └── presentation.pptx    # final defense deck (M7)
+│   ├── api-tests/           # Postman collection + screenshots 
+│   ├── screenshots/         # system screenshots 
+│   └── oop-and-patterns.md    # OOP + design pattern write-up
 ├── ScopeProject.md          # full project scope, milestones, risk register
 ├── IT106 Final Term Project Specifications.pdf
 ├── requirements.txt
