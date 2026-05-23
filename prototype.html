@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lost & Found System — ERD</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #0d0f14;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px 60px;
+    font-family: 'DM Mono', monospace;
+    color: #e8eaf0;
+    min-height: 100vh;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+
+  header h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(1.6rem, 3.5vw, 2.6rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, #f5f7fa, #8899bb);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  header p {
+    margin-top: 6px;
+    font-size: 0.72rem;
+    color: #4a5270;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .erd-svg-wrap {
+    width: 100%;
+    max-width: 1140px;
+    overflow-x: auto;
+  }
+
+  svg#erd {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .legend {
+    margin-top: 32px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 16px 32px;
+    font-size: 0.68rem;
+    color: #4a5268;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .legend-item { display: flex; align-items: center; gap: 8px; }
+
+  .leg-pk { background:#1e2e4a; color:#7eb8f7; padding:2px 7px; border-radius:4px; font-size:0.6rem; }
+  .leg-fk { background:#1e3028; color:#72d489; padding:2px 7px; border-radius:4px; font-size:0.6rem; }
+
+  footer {
+    margin-top: 40px;
+    font-size: 0.62rem;
+    color: #252a3a;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Lost &amp; Found System</h1>
+  <p>Entity Relationship Diagram</p>
+</header>
+
+<div class="erd-svg-wrap">
+<svg id="erd" viewBox="0 0 1100 760" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="arr-blue" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L0,7 L7,3.5 Z" fill="#3a4a70"/>
+    </marker>
+    <marker id="arr-green" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L0,7 L7,3.5 Z" fill="#3a6a45"/>
+    </marker>
+    <marker id="arr-gold" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L0,7 L7,3.5 Z" fill="#8a6a20"/>
+    </marker>
+    <marker id="arr-purple" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L0,7 L7,3.5 Z" fill="#5a3a80"/>
+    </marker>
+    <marker id="arr-teal" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L0,7 L7,3.5 Z" fill="#2a7070"/>
+    </marker>
+    <filter id="shadow">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#000" flood-opacity="0.5"/>
+    </filter>
+  </defs>
+
+  <!-- ══════════════════════════════
+       CONNECTOR LINES (static paths)
+       ══════════════════════════════ -->
+
+  <!-- User → Lost Report (right of User → left of LostReport) -->
+  <path d="M250,110 C340,110 340,125 430,125"
+        fill="none" stroke="#3a4a70" stroke-width="1.8" stroke-opacity="0.75"
+        marker-end="url(#arr-blue)"/>
+  <text x="340" y="104" font-family="monospace" font-size="9" fill="#4a6090" text-anchor="middle">1 : N</text>
+
+  <!-- User → Finder (bottom of User → top of Finder) -->
+  <path d="M90,225 L90,310"
+        fill="none" stroke="#3a6a45" stroke-width="1.8" stroke-opacity="0.75"
+        marker-end="url(#arr-green)"/>
+  <text x="105" y="272" font-family="monospace" font-size="9" fill="#3a6a45">1:N</text>
+
+  <!-- Finder → Found Item (right of Finder, arc up to left of FoundItem) -->
+  <path d="M250,390 C550,390 550,162 840,162"
+        fill="none" stroke="#8a6a20" stroke-width="1.8" stroke-opacity="0.65"
+        marker-end="url(#arr-gold)"/>
+  <text x="540" y="355" font-family="monospace" font-size="9" fill="#9a7a30" text-anchor="middle">1 : N</text>
+
+  <!-- Lost Report → Match (bottom of LostReport → top of Match) -->
+  <path d="M555,245 L555,310"
+        fill="none" stroke="#5a3a80" stroke-width="1.8" stroke-opacity="0.75"
+        marker-end="url(#arr-purple)"/>
+  <text x="572" y="282" font-family="monospace" font-size="9" fill="#7a5aaa">1:N</text>
+
+  <!-- Found Item → Match (left of FoundItem, arc down to right of Match) -->
+  <path d="M840,195 C760,195 760,402 680,402"
+        fill="none" stroke="#8a6a20" stroke-width="1.8" stroke-opacity="0.65"
+        marker-end="url(#arr-gold)"/>
+  <text x="770" y="295" font-family="monospace" font-size="9" fill="#9a7a30" text-anchor="middle">1:N</text>
+
+  <!-- Match → Claim (right of Match → left of Claim) dashed 1:1 -->
+  <path d="M680,415 L840,415"
+        fill="none" stroke="#2a7070" stroke-width="1.8" stroke-opacity="0.8"
+        stroke-dasharray="5,4"
+        marker-end="url(#arr-teal)"/>
+  <text x="760" y="408" font-family="monospace" font-size="9" fill="#2a9090" text-anchor="middle">1 : 1</text>
+
+  <!-- User → Claim (arc all the way bottom, User verifies Claim) -->
+  <path d="M135,225 C135,730 900,730 962,530"
+        fill="none" stroke="#3a4a70" stroke-width="1.5" stroke-opacity="0.35"
+        stroke-dasharray="5,4"
+        marker-end="url(#arr-blue)"/>
+  <text x="570" y="745" font-family="monospace" font-size="9" fill="#3a5090" text-anchor="middle">User verifies Claim (1:N)</text>
+
+  <!-- ══════════════════════════════
+       ENTITY CARDS
+       ══════════════════════════════ -->
+
+  <!-- ─── USER  x=20 y=30 w=230 h=195 ─── -->
+  <g filter="url(#shadow)">
+    <rect x="20" y="30" width="230" height="195" rx="12" fill="#14171f" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
+    <rect x="20" y="30" width="230" height="42" rx="12" fill="#1a2236"/>
+    <rect x="20" y="58" width="230" height="14" fill="#1a2236"/>
+    <text x="36" y="57" font-family="sans-serif" font-size="13" font-weight="bold" fill="#7eb8f7">USER</text>
+    <line x1="20" y1="72" x2="250" y2="72" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+    <!-- rows -->
+    <rect x="28" y="79" width="22" height="13" rx="3" fill="#1e2e4a"/>
+    <text x="29" y="89" font-family="monospace" font-size="8.5" fill="#7eb8f7">PK</text>
+    <text x="56" y="89" font-family="monospace" font-size="9.5" fill="#c5cdd8">user_id</text>
+    <text x="190" y="89" font-family="monospace" font-size="8" fill="#4a5268">INT</text>
+
+    <rect x="28" y="97" width="22" height="13" rx="3" fill="#232530"/>
+    <text x="31" y="107" font-family="monospace" font-size="8" fill="#555d72">—</text>
+    <text x="56" y="107" font-family="monospace" font-size="9.5" fill="#8892a4">name</text>
+    <text x="170" y="107" font-family="monospace" font-size="8" fill="#4a5268">VARCHAR</text>
+
+    <rect x="28" y="115" width="22" height="13" rx="3" fill="#232530"/>
+    <text x="31" y="125" font-family="monospace" font-size="8" fill="#555d72">—</text>
+    <text x="56" y="125" font-family="monospace" font-size="9.5" fill="#8892a4">email</text>
+    <text x="170" y="125" font-family="monospace" font-size="8" fill="#4a5268">VARCHAR</text>
+
+    <rect x="28" y="133" width="22" height="13" rx="3" fill="#232530"/>
+    <text x="31" y="143" font-family="monospace" font-size="8" fill="#555d72">—</text>
+    <text x="56" y="143" font-family="monospace" font-size="9.5" fill="#8892a4">phone</text>
+    <text x="170" y="143" font-family="monospace" font-size="8" fill="#4a5268">VARCHAR</text>
+
+    <rect x="28" y="151" width="22" height="13" rx="3" fill="#232530"/>
+    <text x="31" y="161" font-family="monospace" font-size="8" fill="#555d72">—</text>
+    <text x="56" y="161" font-family="monospace" font-size="9.5" fill="#8892a4">role</text>
+    <text x="185" y="161" font-family="monospace" font-size="8" fill="#4a5268">ENUM</text>
+
+    <rect x="28" y="169" width="22" height="13" rx="3" fill="#232530"/>
+    <text x="31" y="179" font-family="monospace" font-size="8" fill="#555d72">—</text>
+    <text x="56" y="179" font-family="monospace" font-size="9.5" fill="#8892a4">created_at</text>
+    <text x="162" y="179" font-family="monospace" font-size="8" fill="#4a5268">DATETIME</text>
+
+    <rect x="28" y="187" width="22" height="13" rx="3" fill="#232530"/>
+    <text x="31" y="197" font-family="monospace" font-size="8" fill="#555d72">—</text>
+    <text x="56" y="197" font-family="monospace" font-size="9.5" fill="#8892a4">password_hash</text>
+    <text x="166" y="197" font-family="monospace" font-size="8" fill="#4a5268">VARCHAR</text>
+  </g>
+
+  <!-- ─── LOST REPORT  x=430 y=30 w=250 h=215 ─── -->
+  <g filter="url(#shadow)">
+    <rect x="430" y="30" width="250" height="215" rx="12" fill="#14171f" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
+    <rect x="430" y="30" width="250" height="42" rx="12" fill="#241a2b"/>
+    <rect x="430" y="58" width="250" height="14" fill="#241a2b"/>
+    <text x="446" y="57" font-family="sans-serif" font-size="13" font-weight="bold" fill="#c07ef5">LOST REPORT</text>
+    <line x1="430" y1="72" x2="680" y2="72" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+
+    <rect x="438" y="79" width="22" height="13" rx="3" fill="#2a1e3a"/>
+    <text x="439" y="89" font-family="monospace" font-size="8.5" fill="#c07ef5">PK</text>
+    <text x="466" y="89" font-family="monospace" font-size="9.5" fill="#c5cdd8">report_id</text>
+    <text x="618" y="89" font-family="monospace" font-size="8" fill="#4a5268">INT</text>
+
+    <rect x="438" y="97" width="22" height="13" rx="3" fill="#1e3028"/>
+    <text x="439" y="107" font-family="monospace" font-size="8.5" fill="#72d489">FK</text>
+    <text x="466" y="107" font-family="monospace" font-size="9.5" fill="#8892a4">user_id</text>
+    <text x="618" y="107" font-family="monospace" font-size="8" fill="#4a5268">INT</text>
+
+    <rect x="438" y="115" width="22" height="13" rx="3" fill="#232530"/>
+    <text x="441" y="125" font-family="monospace" font-size="8" fill="#555d72">—</text>
+    <text x="466" y="125" font-family="monospace" font-size="9.5" fill="#8892a4">title</text>
+    <text x="600" y="125" font-family="monospace" font-size="8" fill="#4a5268">VARCHAR</text>
+
+    <rect x="438" y="133" width="22" height="13" rx="3" fill="#232530"/>
+    <text x="441" y="143" font-family="monospace" font-size="8" fill="#555d72">—</text>
+    <text x="466" y="143" font-family="monospace" font-size="9.5" fill="#8892a4">description</text>
+    <text x="618" y="143" font-family="monospace" font-size="8" fill="#4a5268">TEXT</text>
+
+    <rect x="438" y="151" width="22" height="13" rx="3" fill="#232530"/>
+    <text x="441" y="161" font-family="monospace" font-size="8" fill="#555d72">—</text>
+    <text x="466" y="161" font-family="monospace" font-size="9.5" fill="#8892a4">date_lost</text>
+    <text x="610" y="161" font-family="monospace" font-size="8" fill="#4a5268">DATE</text>
+
+    <rect x="438" y="169" width="22" height="13" rx="3" fill="#232530"/>
+    <text x="441" y="179" font-family="monospace" font-size="8" fill="#555d72">—</text>
+    <text x="466" y="179" font-family="monospace" font-size="9.5" fill="#8892a4">location_lost</text>
+    <text x="596" y="179" font-family="monospace" font-size="8" fill="#4a5268">VARCHAR</text>
+
+    <rect x="438" y="187" width="22" height="13" rx="3" fill="#232530"/>
+    <text x="441" y="197" font-family="monospace" font-size="8" fill="#555d72">—</text>
+    <text x="466" y="197" font-family="monospace" font-size="9.5" fill="#8892a4">category</text>
+    <text x="596" y="197" font-family="monospace" font-size="8" fill="#4a5268">VARCHAR</text>
+
+    <rect x="438" y="205" width="22" height="13" rx="3" fill="#232530"/>
+    <text x="441" y="215" font-family="monospace" font-size="8" fill="#555d72">—</text>
+    <text x="466" y="215" font-family="monospace" font-size="9.5" fill="#8892a4">status</text>
+    <text x="614" y="215" font-family="monospace" font-size="8" fill="#4a5268">ENUM</text>
+  </g>
+
+  <!-- ─── FOUND ITEM  x=840 y=30 w=245 h=260 ─── -->
+  <g filter="url(#shadow)">
+    <rect x="840" y="30" width="245" height="260" rx="12" fill="#14171f" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
+    <rect x="840" y="30" width="245" height="42" rx="12" fill="#2b1f18"/>
+    <rect x="840" y="58" width="245" height="14" fill="#2b1f18"/>
+    <text x="856" y="57" font-family="sans-serif" font-size="13" font-weight="bold" fill="#f5a46a">FOUND ITEM</text>
+    <line x1="840" y1="72" x2="1085" y2="72" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+
+    <rect x="848" y="79" width="22" height="13" rx="3" fill="#3a2010"/>
+    <text x="849" y="89" font-family="monospace" font-size="8.5" fill="#f5a46a">PK</text>
+    <text x="876" y="89" font-family="monospace" font-size="9.5" fill="#c5cdd8">item_id</text>
+    <text x="1026" y="89" font-family="monospace" font-size="8" fill="#4a5268">INT</text>
+
+    <rect x="848" y="97" width="22" height="13" rx="3" fill="#1e3028"/>
+    <text x="849" y="107" font-family="monospace" font-size="8.5" fill="#72d489">FK</text>
+    <text x="876" y="107" font-family="monospace" font-size="9.5" fill="#8892a4">finder_id</text>
+    <text x="1026" y="107" font-family="monospace" font-size="8" fill="#4a5268">INT</text>
+
+    <rect x="848" y="115" width="22" height="13" rx="3" fill="#232530"/>
+    <text x="851" y="125" font-family="monospace" font-size="8" fill="#555d72">—</text>
+    <text x="876" y="125" font-family="monospace" font-size="9.5" fill="#8892a4">title</text>
+    <text x="1010" y="125" font-family="monospace" font-size="8" fill="#4a5268">VARCHAR</text>
+
+    <rect x="848" y="133" width="22" height="13" rx="3" fill="#232530"/>
+    <text x="851" y="143" font-family="monospace" font-size="8" fill="#555d72">—</text>
+    <text x="876" y="143" font-family="monospace" font-size="9.5" fill="#8892a4">description</text>
+    <text x="1026" y="143" font-family="monospace" font-size="8" fill="#4a5268">TEXT</text>
+
+    <rect x="848" y="151" width="22" height="13" rx="3" fill="#232530"/>
+    <text x="851" y="161" font-family="monospace" font-size="8" fill="#555d72">—</text>
+    <text x="876" y="161" font-family="monospace" font-size="9.5" fill="#8892a4">category</text>
+    <text x="1010" y="161" font-family="monospace" font-size="8" fill="#4a5268">VARCHAR</text>
+
+    <rect x="848" y="169" width="22" height="13" rx="3" fill="#232530"/>
+    <text x="851" y="179" font-family="monospace" font-size="8" fill="#555d72">—</text>
+    <text x="876" y="179" font-family="monospace" font-size="9.5" fill="#8892a4">date_found</text>
+    <text x="1020" y="179" font-family="monospace" font-size="8" fill="#4a5268">DATE</text>
+
+    <rect x="848" y="187" width="22" height="13" rx="3" fill="#232530"/>
+    <text x="851" y="197" font-family="monospace" font-size="8" fill="#555d72">—</text>
+    <text x="876" y="197" font-family="monospace" font-size="9.5" fill="#8892a4">location_found</text>
+    <text x="1000" y="197" font-family="monospace" font-size="8" fill="#4a5268">VARCHAR</text>
+
+    <rect x="848" y="205" width="22" height="13" rx="3" fill="#232530"/>
+    <text x="851" y="215" font-family="monospace" font-size="8" fill="#555d72">—</text>
+    <text x="876" y="215" font-family="monospace" font-size="9.5" fill="#8892a4">photo_url</text>
+    <text x="1010" y="215" font-family="monospace" font-size="8" fill="#4a5268">VARCHAR</text>
+
+    <rect x="848" y="223" width="22" height="13" rx="3" fill="#232530"/>
+    <text x="851" y="233" font-family="monospace" font-size="8" fill="#555d72">—</text>
+    <text x="876" y="233" font-family="monospace" font-size="9.5" fill="#8892a4">storage_loc</text>
+    <text x="1010" y="233" font-family="monospace" font-size="8" fill="#4a5268">VARCHAR</text>
+
+    <rect x="848" y="241" width="22" height="13" rx="3" fill="#232530"/>
+    <text x="851" y="251" font-family="monospace" font-size="8" fill="#555d72">—</text>
+    <text x="876" y="251" font-family="monospace" font-size="9.5" fill="#8892a4">status</text>
+    <text x="1026" y="251" font-family="monospace" font-size="8" fill="#4a5268">ENUM</text>
+  </g>
+
+  <!-- ─── FINDER  x=20 y=310 w=230 h=155 ─── -->
+  <g filter="url(#shadow)">
+    <rect x="20" y="310" width="230" height="155" rx="12" fill="#14171f" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
+    <rect x="20" y="310" width="230" height="42" rx="12" fill="#1a2c1e"/>
+    <rect x="20" y="338" width="230" height="14" fill="#1a2c1e"/>
+    <text x="36" y="337" font-family="sans-serif" font-size="13" font-weight="bold" fill="#72d489">FINDER</text>
+    <line x1="20" y1="352" x2="250" y2="352" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+
+    <rect x="28" y="359" width="22" height="13" rx="3" fill="#1e3028"/>
+    <text x="29" y="369" font-family="monospace" font-size="8.5" fill="#72d489">PK</text>
+    <text x="56" y="369" font-family="monospace" font-size="9.5" fill="#c5cdd8">finder_id</text>
+    <text x="190" y="369" font-family="monospace" font-size="8" fill="#4a5268">INT</text>
+
+    <rect x="28" y="377" width="22" height="13" rx="3" fill="#1e2e4a"/>
+    <text x="29" y="387" font-family="monospace" font-size="8.5" fill="#7eb8f7">FK</text>
+    <text x="56" y="387" font-family="monospace" font-size="9.5" fill="#8892a4">user_id</text>
+    <text x="190" y="387" font-family="monospace" font-size="8" fill="#4a5268">INT</text>
+
+    <rect x="28" y="395" width="22" height="13" rx="3" fill="#232530"/>
+    <text x="31" y="405" font-family="monospace" font-size="8" fill="#555d72">—</text>
+    <text x="56" y="405" font-family="monospace" font-size="9.5" fill="#8892a4">submitted_at</text>
+    <text x="162" y="405" font-family="monospace" font-size="8" fill="#4a5268">DATETIME</text>
+
+    <rect x="28" y="413" width="22" height="13" rx="3" fill="#232530"/>
+    <text x="31" y="423" font-family="monospace" font-size="8" fill="#555d72">—</text>
+    <text x="56" y="423" font-family="monospace" font-size="9.5" fill="#8892a4">notes</text>
+    <text x="185" y="423" font-family="monospace" font-size="8" fill="#4a5268">TEXT</text>
+
+    <rect x="28" y="431" width="22" height="13" rx="3" fill="#232530"/>
+    <text x="31" y="441" font-family="monospace" font-size="8" fill="#555d72">—</text>
+    <text x="56" y="441" font-family="monospace" font-size="9.5" fill="#8892a4">is_anonymous</text>
+    <text x="166" y="441" font-family="monospace" font-size="8" fill="#4a5268">BOOLEAN</text>
+  </g>
+
+  <!-- ─── MATCH  x=430 y=310 w=250 h=190 ─── -->
+  <g filter="url(#shadow)">
+    <rect x="430" y="310" width="250" height="190" rx="12" fill="#14171f" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
+    <rect x="430" y="310" width="250" height="42" rx="12" fill="#2a2218"/>
+    <rect x="430" y="338" width="250" height="14" fill="#2a2218"/>
+    <text x="446" y="337" font-family="sans-serif" font-size="13" font-weight="bold" fill="#f5d36a">MATCH</text>
+    <line x1="430" y1="352" x2="680" y2="352" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+
+    <rect x="438" y="359" width="22" height="13" rx="3" fill="#3a3010"/>
+    <text x="439" y="369" font-family="monospace" font-size="8.5" fill="#f5d36a">PK</text>
+    <text x="466" y="369" font-family="monospace" font-size="9.5" fill="#c5cdd8">match_id</text>
+    <text x="620" y="369" font-family="monospace" font-size="8" fill="#4a5268">INT</text>
+
+    <rect x="438" y="377" width="22" height="13" rx="3" fill="#2a1e3a"/>
+    <text x="439" y="387" font-family="monospace" font-size="8.5" fill="#c07ef5">FK</text>
+    <text x="466" y="387" font-family="monospace" font-size="9.5" fill="#8892a4">report_id</text>
+    <text x="620" y="387" font-family="monospace" font-size="8" fill="#4a5268">INT</text>
+
+    <rect x="438" y="395" width="22" height="13" rx="3" fill="#3a2010"/>
+    <text x="439" y="405" font-family="monospace" font-size="8.5" fill="#f5a46a">FK</text>
+    <text x="466" y="405" font-family="monospace" font-size="9.5" fill="#8892a4">item_id</text>
+    <text x="620" y="405" font-family="monospace" font-size="8" fill="#4a5268">INT</text>
+
+    <rect x="438" y="413" width="22" height="13" rx="3" fill="#232530"/>
+    <text x="441" y="423" font-family="monospace" font-size="8" fill="#555d72">—</text>
+    <text x="466" y="423" font-family="monospace" font-size="9.5" fill="#8892a4">match_score</text>
+    <text x="612" y="423" font-family="monospace" font-size="8" fill="#4a5268">FLOAT</text>
+
+    <rect x="438" y="431" width="22" height="13" rx="3" fill="#232530"/>
+    <text x="441" y="441" font-family="monospace" font-size="8" fill="#555d72">—</text>
+    <text x="466" y="441" font-family="monospace" font-size="9.5" fill="#8892a4">matched_at</text>
+    <text x="598" y="441" font-family="monospace" font-size="8" fill="#4a5268">DATETIME</text>
+
+    <rect x="438" y="449" width="22" height="13" rx="3" fill="#232530"/>
+    <text x="441" y="459" font-family="monospace" font-size="8" fill="#555d72">—</text>
+    <text x="466" y="459" font-family="monospace" font-size="9.5" fill="#8892a4">status</text>
+    <text x="620" y="459" font-family="monospace" font-size="8" fill="#4a5268">ENUM</text>
+  </g>
+
+  <!-- ─── CLAIM  x=840 y=310 w=245 h=220 ─── -->
+  <g filter="url(#shadow)">
+    <rect x="840" y="310" width="245" height="220" rx="12" fill="#14171f" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
+    <rect x="840" y="310" width="245" height="42" rx="12" fill="#1e2828"/>
+    <rect x="840" y="338" width="245" height="14" fill="#1e2828"/>
+    <text x="856" y="337" font-family="sans-serif" font-size="13" font-weight="bold" fill="#6ad4d4">CLAIM</text>
+    <line x1="840" y1="352" x2="1085" y2="352" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+
+    <rect x="848" y="359" width="22" height="13" rx="3" fill="#163030"/>
+    <text x="849" y="369" font-family="monospace" font-size="8.5" fill="#6ad4d4">PK</text>
+    <text x="876" y="369" font-family="monospace" font-size="9.5" fill="#c5cdd8">claim_id</text>
+    <text x="1030" y="369" font-family="monospace" font-size="8" fill="#4a5268">INT</text>
+
+    <rect x="848" y="377" width="22" height="13" rx="3" fill="#3a3010"/>
+    <text x="849" y="387" font-family="monospace" font-size="8.5" fill="#f5d36a">FK</text>
+    <text x="876" y="387" font-family="monospace" font-size="9.5" fill="#8892a4">match_id</text>
+    <text x="1030" y="387" font-family="monospace" font-size="8" fill="#4a5268">INT</text>
+
+    <rect x="848" y="395" width="22" height="13" rx="3" fill="#1e2e4a"/>
+    <text x="849" y="405" font-family="monospace" font-size="8.5" fill="#7eb8f7">FK</text>
+    <text x="876" y="405" font-family="monospace" font-size="9.5" fill="#8892a4">user_id</text>
+    <text x="1030" y="405" font-family="monospace" font-size="8" fill="#4a5268">INT</text>
+
+    <rect x="848" y="413" width="22" height="13" rx="3" fill="#232530"/>
+    <text x="851" y="423" font-family="monospace" font-size="8" fill="#555d72">—</text>
+    <text x="876" y="423" font-family="monospace" font-size="9.5" fill="#8892a4">proof_url</text>
+    <text x="1010" y="423" font-family="monospace" font-size="8" fill="#4a5268">VARCHAR</text>
+
+    <rect x="848" y="431" width="22" height="13" rx="3" fill="#232530"/>
+    <text x="851" y="441" font-family="monospace" font-size="8" fill="#555d72">—</text>
+    <text x="876" y="441" font-family="monospace" font-size="9.5" fill="#8892a4">claimed_at</text>
+    <text x="1006" y="441" font-family="monospace" font-size="8" fill="#4a5268">DATETIME</text>
+
+    <rect x="848" y="449" width="22" height="13" rx="3" fill="#232530"/>
+    <text x="851" y="459" font-family="monospace" font-size="8" fill="#555d72">—</text>
+    <text x="876" y="459" font-family="monospace" font-size="9.5" fill="#8892a4">verified_by</text>
+    <text x="1030" y="459" font-family="monospace" font-size="8" fill="#4a5268">INT</text>
+
+    <rect x="848" y="467" width="22" height="13" rx="3" fill="#232530"/>
+    <text x="851" y="477" font-family="monospace" font-size="8" fill="#555d72">—</text>
+    <text x="876" y="477" font-family="monospace" font-size="9.5" fill="#8892a4">status</text>
+    <text x="1030" y="477" font-family="monospace" font-size="8" fill="#4a5268">ENUM</text>
+  </g>
+
+</svg>
+</div>
+
+<div class="legend">
+  <div class="legend-item"><span class="leg-pk">PK</span> Primary Key</div>
+  <div class="legend-item"><span class="leg-fk">FK</span> Foreign Key</div>
+  <div class="legend-item">
+    <svg width="36" height="10" style="flex-shrink:0"><line x1="0" y1="5" x2="28" y2="5" stroke="#3a4a70" stroke-width="1.8"/><polygon points="24,2 36,5 24,8" fill="#3a4a70"/></svg>
+    One-to-Many
+  </div>
+  <div class="legend-item">
+    <svg width="36" height="10" style="flex-shrink:0"><line x1="0" y1="5" x2="28" y2="5" stroke="#2a7070" stroke-width="1.8" stroke-dasharray="4,3"/><polygon points="24,2 36,5 24,8" fill="#2a7070"/></svg>
+    One-to-One (dashed)
+  </div>
+</div>
+
+<footer>Lost &amp; Found System · Entity Relationship Diagram</footer>
+
+</body>
+</html>
