@@ -177,9 +177,7 @@ In addition to the core Flask/SQLAlchemy stack, the project integrates **14 addi
 | M4 | OOP + design-pattern write-up   | [docs/oop-and-patterns.md](docs/oop-and-patterns.md) — 5 OOP concepts + 5 design patterns, each linked to exact file:line | ✅ done |
 | M5 | IT106 final documentation       | [docs/final-documentation.md](docs/final-documentation.md) — all 12 sections in PDF §VI, with file:line cross-refs | ✅ done |
 | M5.5 | Quality & framework integration | **14 additional frameworks** integrated across 6 commits — see "Framework stack" section below. pytest (26 tests), Flask-Migrate, Flask-Limiter, Flask-Talisman, Flask-Compress, Flask-Caching, openpyxl (Excel), xhtml2pdf (PDF receipts), HTMX, Alpine.js, marshmallow + Flask-Smorest + Swagger UI at `/api/v2/docs` | ✅ done |
-| M6 | System screenshots              | `docs/screenshots/` — login, dashboard, add form, data table, edit, delete, search, API tests | ⏭ next |
-| M7 | Presentation deck (10–15 min)   | `docs/presentation.pptx` (or PDF) — 11 required sections in PDF §VII        | ⬜ todo |
-| M8 | User manual + submission ZIP    | `docs/user-manual.pdf`, SQL dump, individual-contribution form, GitHub link, `IT106_FinalProject_<Group>_LostAndFound.zip` per PDF §VIII | ⬜ todo |
+| M6 | System screenshots              | `docs/screenshots/` — login, dashboard, add form, data table, edit, delete, search, API tests | ✅ done |
 
 ### How rubric points map to milestones
 
@@ -193,7 +191,6 @@ In addition to the core Flask/SQLAlchemy stack, the project integrates **14 addi
 | Validation & Basic Security               |     10 | ✅ Already built · documented in [docs/final-documentation.md §4–§5](docs/final-documentation.md) (RBAC, scrypt password/token hashing, CSRF, ENUM constraints) |
 | Testing & Debugging                       |      5 | ✅ M3 shipped — Postman collection + testing-results table; M5 references it |
 | Documentation                             |      5 | ✅ M5 shipped — [docs/final-documentation.md](docs/final-documentation.md) covers all 12 §VI sections |
-| Presentation & Demonstration              |      5 | **M7**                              |
 
 ---
 
@@ -206,7 +203,7 @@ In addition to the core Flask/SQLAlchemy stack, the project integrates **14 addi
 
 ### Setup
 ```powershell
-git clone https://github.com/<your-user>/lost-and-found.git
+git clone https://github.com/not-yohsn/it106_lost_and_found.git
 cd lost-and-found
 
 python -m venv venv
@@ -297,12 +294,9 @@ UPDATE users SET role = 'admin' WHERE email = 'someone@example.com';
 ├── database/
 │   └── schema.sql           # MySQL schema for the 7 tables
 ├── docs/                    # M3–M8: IT106 submission artifacts
-│   ├── api-tests/           # Postman collection + screenshots (M3)
-│   ├── screenshots/         # system screenshots (M6)
-│   ├── oop-and-patterns.md  # OOP + design pattern write-up (M4)
-│   ├── final-documentation.md  # IT106 §VI format (M5)
-│   ├── user-manual.pdf      # short user manual (M8)
-│   └── presentation.pptx    # final defense deck (M7)
+│   ├── api-tests/           # Postman collection + screenshots 
+│   ├── screenshots/         # system screenshots 
+│   └── oop-and-patterns.md    # OOP + design pattern write-up
 ├── ScopeProject.md          # full project scope, milestones, risk register
 ├── IT106 Final Term Project Specifications.pdf
 ├── requirements.txt
