@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Notifications{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h2 class="page-title">Notifications</h2>
+  {% if notifs and unread_notifications > 0 %}
+  <form method="post" action="{{ url_for('notifications.mark_all_read') }}">
+    <button class="btn btn-outline-secondary btn-sm">Mark all as read</button>
+  </form>
+  {% endif %}
+</div>
+
+{% if notifs %}
+<div class="list-group">
+  {% for n in notifs %}
+    <a href="{{ url_for('notifications.open_', notification_id=n.notification_id) }}"
+       class="list-group-item {% if not n.is_read %}list-group-item-light{% endif %}">
+      <div class="d-flex justify-content-between align-items-start gap-2">
+        <div>
+          {% if not n.is_read %}<span class="badge badge-soft-primary me-2">new</span>{% endif %}
+          <strong>{{ n.title }}</strong>
+          {% if n.body %}<div class="text-muted small mt-1">{{ n.body }}</div>{% endif %}
+        </div>
+        <small class="text-muted text-nowrap">{{ n.created_at.strftime("%b %d, %H:%M") }}</small>
+      </div>
+    </a>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+  <svg class="empty-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/>
+    <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>
+  </svg>
+  <h3 class="empty-title">No notifications yet</h3>
+  <p class="empty-text">
+    You&apos;ll get one when your lost report is matched, your claim is reviewed, or your item is released.
+  </p>
+</div>
+{% endif %}
+{% endblock %}

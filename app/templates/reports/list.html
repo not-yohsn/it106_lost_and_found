@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}{% if mine %}My reports{% else %}Lost reports{% endif %}{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h2 class="page-title">{% if mine %}My lost reports{% else %}Lost reports{% endif %}</h2>
+    <div class="segmented-control">
+      <a class="{% if not mine %}active{% endif %}" href="{{ url_for('reports.index') }}">All</a>
+      <a class="{% if mine %}active{% endif %}" href="{{ url_for('reports.index', mine=1) }}">Mine</a>
+    </div>
+  </div>
+  <a class="btn btn-primary" href="{{ url_for('reports.new') }}">
+    <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+    Report a lost item
+  </a>
+</div>
+
+{% if not mine %}
+<p class="text-muted small mb-4">
+  Browsing all lost reports &mdash; only the reporter and staff see full details
+  (description, location, exact date).
+</p>
+{% endif %}
+
+{% if pagination.items %}
+<div class="row g-3">
+  {% for report in pagination.items %}
+    <div class="col-md-4">
+      <div class="card item-card h-100 position-relative">
+        {% if report.photo_path %}
+          <img src="{{ url_for('static', filename=report.photo_path) }}"
+               class="card-img-top" style="height: 200px; object-fit: cover;" alt="">
+        {% else %}
+          <div class="card-photo-empty">no photo</div>
+        {% endif %}
+        <div class="card-body">
+          <h5 class="card-title mb-1">{{ report.item_name }}</h5>
+          <p class="card-text mb-3">
+            {{ report.category or "uncategorized" }} &middot; posted {{ report.created_at.strftime("%b %d") }}
+          </p>
+          {% set color = {'reported': 'warning', 'matched': 'info', 'claimed': 'primary', 'closed': 'secondary'}[report.status] %}
+          <span class="badge bg-{{ color }}">{{ report.status|capitalize }}</span>
+          <a href="{{ url_for('reports.detail', report_id=report.report_id) }}" class="stretched-link"></a>
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+</div>
+
+{% if pagination.pages > 1 %}
+<nav class="mt-4">
+  <ul class="pagination">
+    {% for page_num in pagination.iter_pages() %}
+      {% if page_num %}
+        <li class="page-item {% if page_num == pagination.page %}active{% endif %}">
+          <a class="page-link" href="?page={{ page_num }}{% if mine %}&amp;mine=1{% endif %}">{{ page_num }}</a>
+        </li>
+      {% else %}
+        <li class="page-item disabled"><span class="page-link">&hellip;</span></li>
+      {% endif %}
+    {% endfor %}
+  </ul>
+</nav>
+{% endif %}
+
+{% else %}
+<div class="empty-state">
+  <svg class="empty-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+  </svg>
+  <h3 class="empty-title">No lost reports yet</h3>
+  <p class="empty-text">Be the first to file a report &mdash; we&apos;ll watch for matches as found items are logged.</p>
+  <a class="btn btn-primary" href="{{ url_for('reports.new') }}">+ File a report</a>
+</div>
+{% endif %}
+{% endblock %}

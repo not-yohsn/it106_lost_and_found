@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% block title %}Claim #{{ claim.claim_id }}{% endblock %}
+{% block content %}
+{% set status_color = {'pending': 'warning', 'approved': 'success', 'rejected': 'danger', 'released': 'primary'}[claim.status] %}
+
+<a href="{{ url_for('claims.index') }}" class="text-muted small">&larr; Back to claims</a>
+
+<div class="page-header mt-3">
+  <h2 class="page-title">Claim #{{ claim.claim_id }}</h2>
+  <span class="badge bg-{{ status_color }}">{{ claim.status|capitalize }}</span>
+</div>
+
+{# Claims have 3 main stages + a Rejected branch off Pending. #}
+{% if claim.status == "rejected" %}
+<ol class="status-timeline">
+  <li class="status-step status-step--done">Pending</li>
+  <li class="status-step status-step--danger">Rejected</li>
+</ol>
+{% else %}
+{% set cstages = ["pending", "approved", "released"] %}
+{% set cindex = cstages.index(claim.status) %}
+<ol class="status-timeline">
+  {% for s in cstages %}
+    {% set idx = loop.index0 %}
+    <li class="status-step {% if idx < cindex %}status-step--done{% elif idx == cindex %}status-step--active{% endif %}">
+      {{ s|capitalize }}
+    </li>
+  {% endfor %}
+</ol>
+{% endif %}
+
+<div class="row g-4">
+  <div class="col-md-6">
+    <div class="card h-100">
+      <div class="card-header bg-warning-subtle">Lost report</div>
+      <div class="card-body">
+        <h5>{{ claim.match.lost_report.item_name }}</h5>
+        <p class="text-muted small mb-2">
+          {{ claim.match.lost_report.location or "&mdash;" }} &middot;
+          {{ claim.match.lost_report.date_lost or "n/a" }}
+        </p>
+        <a class="btn btn-sm btn-outline-secondary"
+           href="{{ url_for('reports.detail', report_id=claim.match.lost_report.report_id) }}">
+          View report
+        </a>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card h-100">
+      <div class="card-header bg-success-subtle">Found item</div>
+      <div class="card-body">
+        <h5>{{ claim.match.found_item.item_name }}</h5>
+        <p class="text-muted small mb-2">
+          {{ claim.match.found_item.location_found or "&mdash;" }} &middot;
+          {{ claim.match.found_item.date_found or "n/a" }}
+        </p>
+        <a class="btn btn-sm btn-outline-secondary"
+           href="{{ url_for('found.detail', item_id=claim.match.found_item.item_id) }}">
+          View item
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="mt-4">
+  <h5>Claimant</h5>
+  <p class="mb-1">
+    <strong>{{ claim.claimant.name }}</strong>
+    <span class="text-muted small ms-2">{{ claim.claimant.email }}</span>
+  </p>
+  <p class="text-muted small">
+    Submitted {{ claim.submitted_at.strftime("%b %d, %Y at %H:%M") }}
+  </p>
+
+  {% if claim.notes %}
+  <h6 class="text-muted mt-3">Notes from claimant</h6>
+  <p>{{ claim.notes }}</p>
+  {% endif %}
+
+  {% if claim.verifier %}
+  <p class="text-muted small">
+    {{ claim.status|capitalize }} by {{ claim.verifier.name }}
+    {% if claim.resolved_at %}on {{ claim.resolved_at.strftime("%b %d, %Y at %H:%M") }}{% endif %}
+  </p>
+  {% endif %}
+</div>
+
+{% if current_user.role in ("staff", "admin") %}
+<hr>
+<h5 class="mb-3">Staff actions</h5>
+<div class="d-flex gap-2 flex-wrap">
+  {% if claim.status == "pending" %}
+    <form method="post" action="{{ url_for('claims.approve', claim_id=claim.claim_id) }}" class="d-inline">
+      <button class="btn btn-success">Approve</button>
+    </form>
+    <form method="post" action="{{ url_for('claims.reject', claim_id=claim.claim_id) }}" class="d-inline"
+          onsubmit="return confirm('Reject this claim?');">
+      <button class="btn btn-outline-danger">Reject</button>
+    </form>
+  {% elif claim.status == "approved" %}
+    <form method="post" action="{{ url_for('claims.release', claim_id=claim.claim_id) }}" class="d-inline"
+          onsubmit="return confirm('Mark item as released to the claimant? This closes the lost report.');">
+      <button class="btn btn-primary">Mark as released</button>
+    </form>
+    <form method="post" action="{{ url_for('claims.reject', claim_id=claim.claim_id) }}" class="d-inline"
+          onsubmit="return confirm('Reject this approved claim?');">
+      <button class="btn btn-outline-danger">Reject</button>
+    </form>
+  {% else %}
+    <p class="text-muted small mb-0">No further actions &mdash; claim is {{ claim.status }}.</p>
+  {% endif %}
+</div>
+{% endif %}
+{% endblock %}

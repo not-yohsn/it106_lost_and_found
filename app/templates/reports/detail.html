@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+{% block title %}{{ report.item_name }}{% endblock %}
+{% block content %}
+{% set is_owner = report.user_id == current_user.user_id %}
+{% set stages = ["reported", "matched", "claimed", "closed"] %}
+{% set current_index = stages.index(report.status) %}
+
+<a href="{{ url_for('reports.index') }}" class="text-muted small">&larr; Back to lost reports</a>
+
+<div class="row mt-3 g-4">
+  <div class="col-md-5">
+    {% if report.photo_path %}
+      <img src="{{ url_for('static', filename=report.photo_path) }}" class="img-fluid rounded" alt="">
+    {% else %}
+      <div class="card-photo-empty rounded" style="height: 280px;">no photo uploaded</div>
+    {% endif %}
+  </div>
+  <div class="col-md-7">
+    <h2 class="mb-3">{{ report.item_name }}</h2>
+
+    <ol class="status-timeline">
+      {% for s in stages %}
+        {% set idx = loop.index0 %}
+        <li class="status-step {% if idx < current_index %}status-step--done{% elif idx == current_index %}status-step--active{% endif %}">
+          {{ s|capitalize }}
+        </li>
+      {% endfor %}
+    </ol>
+
+    <dl class="row mb-3">
+      <dt class="col-sm-4">Category</dt>
+      <dd class="col-sm-8">{{ report.category or "&mdash;" }}</dd>
+
+      <dt class="col-sm-4">Reported on</dt>
+      <dd class="col-sm-8">{{ report.created_at.strftime("%b %d, %Y") }}</dd>
+
+      {% if is_authorized %}
+      <dt class="col-sm-4">Reported by</dt>
+      <dd class="col-sm-8">{{ report.user.name }}</dd>
+
+      <dt class="col-sm-4">Location lost</dt>
+      <dd class="col-sm-8">{{ report.location or "&mdash;" }}</dd>
+
+      <dt class="col-sm-4">Date lost</dt>
+      <dd class="col-sm-8">{{ report.date_lost or "n/a" }}</dd>
+      {% endif %}
+    </dl>
+
+    {% if is_authorized and report.description %}
+    <h6 class="text-muted">Description</h6>
+    <p>{{ report.description }}</p>
+    {% endif %}
+
+    {% if not is_authorized %}
+    <div class="alert alert-light small mt-3">
+      <strong>Privacy:</strong> Description, location, and the exact date of loss
+      are visible only to the reporter and to staff. If you found this item,
+      please <a href="{{ url_for('found.new') }}">log it as found</a> &mdash; staff
+      will review the match and notify the owner.
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+{% if is_authorized and report.match %}
+<hr>
+<div class="alert alert-info d-flex justify-content-between align-items-center flex-wrap gap-2">
+  <div>
+    <strong>Matched</strong> with
+    <a href="{{ url_for('found.detail', item_id=report.match.found_item.item_id) }}">
+      {{ report.match.found_item.item_name }}
+    </a>
+    &middot;
+    <a href="{{ url_for('matches.detail', match_id=report.match.match_id) }}">view match</a>
+  </div>
+  {% if is_owner and report.match.found_item.status != "released" %}
+    {% set my_claim = report.match.claims | selectattr("claimant_id", "equalto", current_user.user_id)
+                                          | rejectattr("status", "equalto", "rejected")
+                                          | list | first %}
+    {% if my_claim %}
+      <a class="btn btn-sm btn-outline-primary"
+         href="{{ url_for('claims.detail', claim_id=my_claim.claim_id) }}">
+        View my claim ({{ my_claim.status }})
+      </a>
+    {% else %}
+      <a class="btn btn-sm btn-primary"
+         href="{{ url_for('claims.new', match_id=report.match.match_id) }}">Claim this item</a>
+    {% endif %}
+  {% endif %}
+</div>
+{% elif is_authorized and candidates %}
+<hr>
+<h4 class="mb-3">Possible matches</h4>
+<p class="text-muted small">
+  Top {{ candidates|length }} found item(s) that might be this report. Staff can confirm a match below.
+</p>
+<div class="row g-3">
+  {% for item, score, reasons in candidates %}
+    <div class="col-md-6">
+      <div class="card h-100">
+        <div class="row g-0">
+          <div class="col-4">
+            {% if item.photo_path %}
+              <img src="{{ url_for('static', filename=item.photo_path) }}"
+                   class="rounded-start" style="width:100%; height:100%; object-fit:cover;" alt="">
+            {% else %}
+              <div class="card-photo-empty h-100">no photo</div>
+            {% endif %}
+          </div>
+          <div class="col-8">
+            <div class="card-body py-2">
+              <div class="d-flex justify-content-between align-items-start">
+                <h6 class="mb-1">{{ item.item_name }}</h6>
+                <span class="badge badge-soft-primary" title="Match confidence">{{ "%.0f%%"|format(score * 100) }}</span>
+              </div>
+              <p class="text-muted small mb-1">
+                {{ item.location_found or "&mdash;" }} &middot; {{ item.date_found or "n/a" }}
+              </p>
+              {% if reasons %}
+              <p class="small mb-2" style="color: var(--color-success);">
+                Why: {{ reasons | join(' &middot; ') }}
+              </p>
+              {% endif %}
+              <div class="d-flex gap-2">
+                <a class="btn btn-sm btn-outline-secondary"
+                   href="{{ url_for('found.detail', item_id=item.item_id) }}">View</a>
+                {% if current_user.role in ("staff", "admin") %}
+                <form method="post" action="{{ url_for('matches.confirm') }}" class="d-inline">
+                  <input type="hidden" name="lost_report_id" value="{{ report.report_id }}">
+                  <input type="hidden" name="found_item_id" value="{{ item.item_id }}">
+                  <input type="hidden" name="score" value="{{ score }}">
+                  <button class="btn btn-sm btn-primary">Confirm match</button>
+                </form>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+</div>
+{% elif is_authorized and report.status == "reported" %}
+<hr>
+<p class="text-muted">No likely matches yet. We&apos;ll keep looking as new found items are logged.</p>
+{% endif %}
+{% endblock %}

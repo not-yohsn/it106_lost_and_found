@@ -1,0 +1,19 @@
+<div class="notif-peek">
+  {# Works with either `notifs` (when fetched via the HTMX endpoint) or
+     `recent_notifications` (when included server-side from base.html). #}
+  {% set items = notifs if notifs is defined else recent_notifications %}
+  {% if items %}
+    <div class="notif-peek-header">Notifications</div>
+    {% for n in items %}
+      <a class="notif-peek-item {{ 'unread' if not n.is_read else '' }}"
+         href="{{ url_for('notifications.open_', notification_id=n.notification_id) }}">
+        <div class="notif-peek-title">{{ n.title }}</div>
+        {% if n.body %}<div class="notif-peek-body">{{ n.body }}</div>{% endif %}
+        <div class="notif-peek-time">{{ n.created_at.strftime("%b %d, %H:%M") }}</div>
+      </a>
+    {% endfor %}
+    <a class="notif-peek-footer" href="{{ url_for('notifications.index') }}">View all</a>
+  {% else %}
+    <div class="notif-peek-empty">No notifications yet.</div>
+  {% endif %}
+</div>

@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% block title %}{{ item.item_name }}{% endblock %}
+{% block content %}
+{% set stages = ["logged", "matched", "released"] %}
+{% set current_index = stages.index(item.status) %}
+
+<a href="{{ url_for('found.index') }}" class="text-muted small">&larr; Back to found items</a>
+
+<div class="row mt-3 g-4">
+  <div class="col-md-5">
+    {% if item.photo_path %}
+      <img src="{{ url_for('static', filename=item.photo_path) }}" class="img-fluid rounded" alt="">
+    {% else %}
+      <div class="card-photo-empty rounded" style="height: 280px;">no photo uploaded</div>
+    {% endif %}
+  </div>
+  <div class="col-md-7">
+    <h2 class="mb-3">{{ item.item_name }}</h2>
+
+    <ol class="status-timeline">
+      {% for s in stages %}
+        {% set idx = loop.index0 %}
+        <li class="status-step {% if idx < current_index %}status-step--done{% elif idx == current_index %}status-step--active{% endif %}">
+          {{ s|capitalize }}
+        </li>
+      {% endfor %}
+    </ol>
+
+    <dl class="row mb-3">
+      <dt class="col-sm-4">Logged by</dt>
+      <dd class="col-sm-8">
+        {% if item.logged_by %}user #{{ item.logged_by }}{% else %}&mdash;{% endif %}
+      </dd>
+
+      <dt class="col-sm-4">Category</dt>
+      <dd class="col-sm-8">{{ item.category or "&mdash;" }}</dd>
+
+      <dt class="col-sm-4">Location found</dt>
+      <dd class="col-sm-8">{{ item.location_found or "&mdash;" }}</dd>
+
+      <dt class="col-sm-4">Date found</dt>
+      <dd class="col-sm-8">{{ item.date_found or "n/a" }}</dd>
+
+      <dt class="col-sm-4">Logged on</dt>
+      <dd class="col-sm-8">{{ item.created_at.strftime("%b %d, %Y %H:%M") }}</dd>
+    </dl>
+
+    {% if item.description %}
+    <h6 class="text-muted">Description</h6>
+    <p>{{ item.description }}</p>
+    {% endif %}
+  </div>
+</div>
+
+{% if item.match and current_user.role in ("staff", "admin") %}
+<hr>
+<div class="alert alert-info">
+  <strong>Matched</strong> with the lost report
+  <a href="{{ url_for('reports.detail', report_id=item.match.lost_report.report_id) }}">
+    {{ item.match.lost_report.item_name }}
+  </a>
+  &middot;
+  <a href="{{ url_for('matches.detail', match_id=item.match.match_id) }}">view match</a>
+</div>
+{% elif candidates %}
+<hr>
+<h4 class="mb-3">Possible matches</h4>
+<p class="text-muted small">
+  Top {{ candidates|length }} lost report(s) that might be looking for this item.
+</p>
+<div class="row g-3">
+  {% for report, score, reasons in candidates %}
+    <div class="col-md-6">
+      <div class="card h-100">
+        <div class="row g-0">
+          <div class="col-4">
+            {% if report.photo_path %}
+              <img src="{{ url_for('static', filename=report.photo_path) }}"
+                   class="rounded-start" style="width:100%; height:100%; object-fit:cover;" alt="">
+            {% else %}
+              <div class="card-photo-empty h-100">no photo</div>
+            {% endif %}
+          </div>
+          <div class="col-8">
+            <div class="card-body py-2">
+              <div class="d-flex justify-content-between align-items-start">
+                <h6 class="mb-1">{{ report.item_name }}</h6>
+                <span class="badge badge-soft-primary" title="Match confidence">{{ "%.0f%%"|format(score * 100) }}</span>
+              </div>
+              <p class="text-muted small mb-1">
+                {{ report.location or "&mdash;" }} &middot; {{ report.date_lost or "n/a" }}
+              </p>
+              {% if reasons %}
+              <p class="small mb-1" style="color: var(--color-success);">
+                Why: {{ reasons | join(' &middot; ') }}
+              </p>
+              {% endif %}
+              <p class="small mb-2 text-muted">by {{ report.user.name }}</p>
+              <div class="d-flex gap-2">
+                <a class="btn btn-sm btn-outline-secondary"
+                   href="{{ url_for('reports.detail', report_id=report.report_id) }}">View</a>
+                {% if current_user.role in ("staff", "admin") %}
+                <form method="post" action="{{ url_for('matches.confirm') }}" class="d-inline">
+                  <input type="hidden" name="lost_report_id" value="{{ report.report_id }}">
+                  <input type="hidden" name="found_item_id" value="{{ item.item_id }}">
+                  <input type="hidden" name="score" value="{{ score }}">
+                  <button class="btn btn-sm btn-primary">Confirm match</button>
+                </form>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+</div>
+{% elif item.status == "logged" %}
+<hr>
+<p class="text-muted">No likely lost reports match this yet.</p>
+{% endif %}
+{% endblock %}
