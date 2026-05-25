@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block title %}Match #{{ match.match_id }}{% endblock %}
+{% block content %}
+{% set is_owner = match.lost_report.user_id == current_user.user_id %}
+{% set is_staff = current_user.role in ("staff", "admin") %}
+
+<a href="{% if is_staff %}{{ url_for('matches.index') }}{% else %}{{ url_for('main.dashboard') }}{% endif %}"
+   class="text-muted small">&larr; Back</a>
+
+<div class="page-header mt-3">
+  <h2 class="page-title">Match #{{ match.match_id }}</h2>
+  <span class="badge badge-soft-info">
+    Confidence: {{ "%.0f%%"|format((match.confidence_score or 0) * 100) }}
+  </span>
+</div>
+
+<div class="row g-4">
+  <div class="col-md-6">
+    <div class="card h-100">
+      <div class="card-header bg-warning-subtle">Lost report</div>
+      <div class="card-body">
+        <h5>{{ match.lost_report.item_name }}</h5>
+        <p class="text-muted small mb-2">
+          {{ match.lost_report.location or "&mdash;" }} &middot;
+          {{ match.lost_report.date_lost or "n/a" }}
+        </p>
+        <p class="small">Reported by <strong>{{ match.lost_report.user.name }}</strong></p>
+        <a class="btn btn-sm btn-outline-secondary"
+           href="{{ url_for('reports.detail', report_id=match.lost_report.report_id) }}">View report</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-6">
+    <div class="card h-100">
+      <div class="card-header bg-success-subtle">Found item</div>
+      <div class="card-body">
+        <h5>{{ match.found_item.item_name }}</h5>
+        <p class="text-muted small mb-2">
+          {{ match.found_item.location_found or "&mdash;" }} &middot;
+          {{ match.found_item.date_found or "n/a" }}
+        </p>
+        <a class="btn btn-sm btn-outline-secondary"
+           href="{{ url_for('found.detail', item_id=match.found_item.item_id) }}">View item</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% if is_owner and match.found_item.status != "released" %}
+  {% set my_claim = match.claims | selectattr("claimant_id", "equalto", current_user.user_id)
+                                  | rejectattr("status", "equalto", "rejected")
+                                  | list | first %}
+  {% if my_claim %}
+    <div class="alert alert-info mt-4">
+      You have a {{ my_claim.status }} claim on this item.
+      <a href="{{ url_for('claims.detail', claim_id=my_claim.claim_id) }}">View claim &rarr;</a>
+    </div>
+  {% else %}
+    <div class="mt-4">
+      <a class="btn btn-primary btn-lg" href="{{ url_for('claims.new', match_id=match.match_id) }}">
+        Claim this item
+      </a>
+    </div>
+  {% endif %}
+{% endif %}
+
+{% if match.claims %}
+<hr>
+<h5>Claims on this match</h5>
+<ul class="list-group">
+  {% for c in match.claims %}
+    {% set sc = {'pending': 'warning', 'approved': 'success', 'rejected': 'danger', 'released': 'primary'}[c.status] %}
+    <li class="list-group-item d-flex justify-content-between align-items-center">
+      <div>
+        <strong>{{ c.claimant.name }}</strong>
+        <span class="text-muted small ms-2">{{ c.submitted_at.strftime("%b %d, %Y") }}</span>
+      </div>
+      <div>
+        <span class="badge bg-{{ sc }} me-2">{{ c.status|capitalize }}</span>
+        <a class="btn btn-sm btn-outline-primary"
+           href="{{ url_for('claims.detail', claim_id=c.claim_id) }}">View</a>
+      </div>
+    </li>
+  {% endfor %}
+</ul>
+{% endif %}
+
+<div class="mt-4">
+  <p class="text-muted small mb-2">Matched on {{ match.matched_at.strftime("%b %d, %Y %H:%M") }}</p>
+
+  {% if is_staff %}
+  <form method="post" action="{{ url_for('matches.dissolve', match_id=match.match_id) }}"
+        onsubmit="return confirm('Dissolve this match? Both items will revert to their original status.');">
+    <button class="btn btn-outline-danger btn-sm">Dissolve match</button>
+  </form>
+  {% endif %}
+</div>
+{% endblock %}

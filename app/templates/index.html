@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero">
+  <h1 class="hero-title">Lost &amp; Found Tracking</h1>
+  <p class="hero-subtitle">
+    Report lost items, log found ones, and reunite them &mdash; all in one place.
+  </p>
+  <div class="hero-cta">
+    {% if not current_user.is_authenticated %}
+      <a class="btn btn-primary btn-lg" href="{{ url_for('auth.register') }}">Get started</a>
+      <a class="btn btn-outline-secondary btn-lg" href="{{ url_for('auth.login') }}">Log in</a>
+    {% else %}
+      <a class="btn btn-primary btn-lg" href="{{ url_for('main.dashboard') }}">Go to dashboard</a>
+    {% endif %}
+  </div>
+</section>
+
+<div class="row g-4 mt-2">
+  <div class="col-md-4">
+    <div class="card h-100"><div class="card-body">
+      <svg class="icon-lg mb-3" style="color: var(--color-primary);" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+      </svg>
+      <h5 class="card-title">Report a lost item</h5>
+      <p class="card-text">
+        File a report with photo, location, and date. We&apos;ll alert you when there&apos;s a match.
+      </p>
+    </div></div>
+  </div>
+  <div class="col-md-4">
+    <div class="card h-100"><div class="card-body">
+      <svg class="icon-lg mb-3" style="color: var(--color-primary);" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M16.5 9.4 7.55 4.24"/>
+        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+        <path d="m3.3 7 8.7 5 8.7-5"/>
+        <path d="M12 22V12"/>
+      </svg>
+      <h5 class="card-title">Log a found item</h5>
+      <p class="card-text">
+        Staff and finders log items turned in to the office for everyone to search.
+      </p>
+    </div></div>
+  </div>
+  <div class="col-md-4">
+    <div class="card h-100"><div class="card-body">
+      <svg class="icon-lg mb-3" style="color: var(--color-primary);" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/>
+      </svg>
+      <h5 class="card-title">Track status</h5>
+      <p class="card-text">
+        Real-time status: Reported &rarr; Matched &rarr; Claimed &rarr; Closed.
+      </p>
+    </div></div>
+  </div>
+</div>
+{% endblock %}

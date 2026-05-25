@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}Found items{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h2 class="page-title">Found items</h2>
+  <a class="btn btn-primary" href="{{ url_for('found.new') }}">
+    <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+    Log a found item
+  </a>
+</div>
+
+{% if pagination.items %}
+<div class="row g-3">
+  {% for item in pagination.items %}
+    <div class="col-md-4">
+      <div class="card item-card h-100 position-relative">
+        {% if item.photo_path %}
+          <img src="{{ url_for('static', filename=item.photo_path) }}"
+               class="card-img-top" style="height: 200px; object-fit: cover;" alt="">
+        {% else %}
+          <div class="card-photo-empty">no photo</div>
+        {% endif %}
+        <div class="card-body">
+          <h5 class="card-title mb-1">{{ item.item_name }}</h5>
+          <p class="card-text mb-3">
+            {{ item.location_found or "&mdash;" }} &middot; {{ item.date_found or "n/a" }}
+          </p>
+          {# Hide the "matched" badge from students -- it leaks the staff
+             workflow state for items they haven't claimed. Staff/admin still
+             see the full status. #}
+          {% if current_user.role in ("staff", "admin") or item.status != "matched" %}
+            {% set color = {'logged': 'success', 'matched': 'info', 'released': 'secondary'}[item.status] %}
+            <span class="badge bg-{{ color }}">{{ item.status|capitalize }}</span>
+          {% endif %}
+          <a href="{{ url_for('found.detail', item_id=item.item_id) }}" class="stretched-link"></a>
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+</div>
+
+{% if pagination.pages > 1 %}
+<nav class="mt-4">
+  <ul class="pagination">
+    {% for page_num in pagination.iter_pages() %}
+      {% if page_num %}
+        <li class="page-item {% if page_num == pagination.page %}active{% endif %}">
+          <a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a>
+        </li>
+      {% else %}
+        <li class="page-item disabled"><span class="page-link">&hellip;</span></li>
+      {% endif %}
+    {% endfor %}
+  </ul>
+</nav>
+{% endif %}
+
+{% else %}
+<div class="empty-state">
+  <svg class="empty-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M16.5 9.4 7.55 4.24"/>
+    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+    <path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/>
+  </svg>
+  <h3 class="empty-title">No found items logged yet</h3>
+  <p class="empty-text">When someone turns in an item to the office, it shows up here.</p>
+  <a class="btn btn-primary" href="{{ url_for('found.new') }}">+ Log the first one</a>
+</div>
+{% endif %}
+{% endblock %}

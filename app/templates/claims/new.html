@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Claim this item{% endblock %}
+{% block content %}
+<a href="{{ url_for('matches.detail', match_id=match.match_id) }}" class="text-muted small">&larr; Back to match</a>
+
+<div class="row justify-content-center mt-3">
+  <div class="col-md-7">
+    <h2 class="page-title mb-4">Claim this item</h2>
+
+    <div class="card mb-4">
+      <div class="card-body">
+        <h5 class="mb-2">{{ match.found_item.item_name }}</h5>
+        <p class="text-muted small mb-1">
+          Found at {{ match.found_item.location_found or "&mdash;" }} on
+          {{ match.found_item.date_found or "n/a" }}
+        </p>
+        <p class="small mb-0">
+          Matched with your report:
+          <a href="{{ url_for('reports.detail', report_id=match.lost_report.report_id) }}">
+            {{ match.lost_report.item_name }}
+          </a>
+        </p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <form method="post" novalidate>
+          {{ form.hidden_tag() }}
+          <div class="mb-3">
+            {{ form.notes.label(class="form-label") }}
+            {{ form.notes(class="form-control") }}
+            <div class="form-text">Helps staff verify ownership when you pick up the item.</div>
+          </div>
+          <div class="d-flex gap-2">
+            {{ form.submit(class="btn btn-primary") }}
+            <a class="btn btn-outline-secondary"
+               href="{{ url_for('matches.detail', match_id=match.match_id) }}">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

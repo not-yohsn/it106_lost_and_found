@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Claims{% endblock %}
+{% block content %}
+{% set is_staff = current_user.role in ("staff", "admin") %}
+
+<div class="page-header">
+  <h2 class="page-title">{% if is_staff %}All claims{% else %}My claims{% endif %}</h2>
+</div>
+
+{% if claims %}
+<div class="table-responsive">
+  <table class="table align-middle">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Item</th>
+        {% if is_staff %}<th>Claimant</th>{% endif %}
+        <th>Status</th>
+        <th>Submitted</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for c in claims %}
+        {% set status_color = {'pending': 'warning', 'approved': 'success', 'rejected': 'danger', 'released': 'primary'}[c.status] %}
+        <tr>
+          <td class="text-muted">{{ c.claim_id }}</td>
+          <td>
+            <strong>{{ c.match.lost_report.item_name }}</strong>
+            <div class="small text-muted">found: {{ c.match.found_item.item_name }}</div>
+          </td>
+          {% if is_staff %}<td>{{ c.claimant.name }}</td>{% endif %}
+          <td><span class="badge bg-{{ status_color }}">{{ c.status|capitalize }}</span></td>
+          <td class="small text-muted">{{ c.submitted_at.strftime("%b %d, %Y") }}</td>
+          <td>
+            <a class="btn btn-sm btn-outline-primary"
+               href="{{ url_for('claims.detail', claim_id=c.claim_id) }}">View</a>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="empty-state">
+  <svg class="empty-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/>
+  </svg>
+  <h3 class="empty-title">No claims yet</h3>
+  <p class="empty-text">
+    {% if is_staff %}
+      Claims will appear here when students request items matched to their lost reports.
+    {% else %}
+      When one of your lost reports is matched, you&apos;ll be able to claim the item from there.
+    {% endif %}
+  </p>
+</div>
+{% endif %}
+{% endblock %}

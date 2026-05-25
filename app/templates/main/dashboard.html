@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+{% set is_staff = user.role in ("staff", "admin") %}
+
+<div class="dashboard-greeting">
+  <h1>Hi, {{ user.name }}</h1>
+  <span class="badge badge-soft-primary">{{ user.role|capitalize }}</span>
+</div>
+
+{% if is_staff %}
+{# ----- Staff / Admin KPIs ----- #}
+<div class="row g-3 mb-4">
+  <div class="col-md-6 col-lg-3">
+    <div class="card h-100 {% if stats.claims_pending > 0 %}border-warning{% endif %}">
+      <div class="card-body">
+        <h6>Pending claims</h6>
+        <h2 class="mb-1">{{ stats.claims_pending }}</h2>
+        <a href="{{ url_for('claims.index') }}" class="small">Review &rarr;</a>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6 col-lg-3">
+    <div class="card h-100">
+      <div class="card-body">
+        <h6>Active lost reports</h6>
+        <h2 class="mb-1">{{ stats.lost_active }}</h2>
+        <span class="text-muted small">{{ stats.lost_total }} total</span>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6 col-lg-3">
+    <div class="card h-100">
+      <div class="card-body">
+        <h6>Items in custody</h6>
+        <h2 class="mb-1">{{ stats.found_logged + stats.found_matched }}</h2>
+        <span class="text-muted small">{{ stats.found_released }} released</span>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6 col-lg-3">
+    <div class="card h-100">
+      <div class="card-body">
+        <h6>Match rate</h6>
+        <h2 class="mb-1">{{ stats.match_rate }}%</h2>
+        <span class="text-muted small">{{ stats.matches_total }} confirmed matches</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h5 class="mb-3 mt-5">Quick actions</h5>
+<div class="row g-3">
+  <div class="col-md-6 col-lg-4">
+    <div class="card h-100"><div class="card-body">
+      <h6 class="card-title">Confirm matches</h6>
+      <p class="card-text">Review system suggestions and link lost reports to found items.</p>
+      <a class="btn btn-primary btn-sm" href="{{ url_for('matches.index') }}">Open</a>
+    </div></div>
+  </div>
+  <div class="col-md-6 col-lg-4">
+    <div class="card h-100"><div class="card-body">
+      <h6 class="card-title">Review claims</h6>
+      <p class="card-text">Approve, reject, or release matched items to their owners.</p>
+      <a class="btn btn-primary btn-sm" href="{{ url_for('claims.index') }}">Open</a>
+    </div></div>
+  </div>
+  <div class="col-md-6 col-lg-4">
+    <div class="card h-100"><div class="card-body">
+      <h6 class="card-title">Log a found item</h6>
+      <p class="card-text">Record an item turned in at the office.</p>
+      <a class="btn btn-primary btn-sm" href="{{ url_for('found.new') }}">Log</a>
+    </div></div>
+  </div>
+  <div class="col-md-6 col-lg-4">
+    <div class="card h-100"><div class="card-body">
+      <h6 class="card-title">All lost reports</h6>
+      <p class="card-text">Browse everything filed by students.</p>
+      <a class="btn btn-outline-primary btn-sm" href="{{ url_for('reports.index') }}">View</a>
+    </div></div>
+  </div>
+  <div class="col-md-6 col-lg-4">
+    <div class="card h-100"><div class="card-body">
+      <h6 class="card-title">All found items</h6>
+      <p class="card-text">Inventory of items currently held or released.</p>
+      <a class="btn btn-outline-primary btn-sm" href="{{ url_for('found.index') }}">View</a>
+    </div></div>
+  </div>
+  {% if user.role == "admin" %}
+  <div class="col-md-6 col-lg-4">
+    <div class="card h-100 border-warning"><div class="card-body">
+      <h6 class="card-title">Manage users</h6>
+      <p class="card-text">Promote or demote students, staff, and admins.</p>
+      <a class="btn btn-outline-primary btn-sm" href="{{ url_for('admin.users') }}">Open</a>
+    </div></div>
+  </div>
+  {% endif %}
+</div>
+
+<h5 class="mt-5 mb-3">Exports</h5>
+<div class="d-flex gap-2 flex-wrap">
+  <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('reports.export_csv') }}">Lost reports (CSV)</a>
+  <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('found.export_csv') }}">Found items (CSV)</a>
+  <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('claims.export_csv') }}">Claims (CSV)</a>
+</div>
+
+{% else %}
+{# ----- Student dashboard ----- #}
+<div class="row g-3 mb-4">
+  <div class="col-md-6 col-lg-3">
+    <div class="card h-100">
+      <div class="card-body">
+        <h6>Active lost reports</h6>
+        <h2 class="mb-1">{{ my.my_lost_active }}</h2>
+        <span class="text-muted small">{{ my.my_lost }} filed total</span>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6 col-lg-3">
+    <div class="card h-100 {% if my.my_lost_matched > 0 %}border-info{% endif %}">
+      <div class="card-body">
+        <h6>Matched (claimable)</h6>
+        <h2 class="mb-1">{{ my.my_lost_matched }}</h2>
+        {% if my.my_lost_matched > 0 %}
+          <a href="{{ url_for('reports.index', mine=1) }}" class="small">Open my reports &rarr;</a>
+        {% else %}
+          <span class="text-muted small">no matches yet</span>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6 col-lg-3">
+    <div class="card h-100">
+      <div class="card-body">
+        <h6>Pending claims</h6>
+        <h2 class="mb-1">{{ my.my_claims_pending }}</h2>
+        <span class="text-muted small">awaiting staff review</span>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6 col-lg-3">
+    <div class="card h-100 {% if my.my_claims_released > 0 %}border-success{% endif %}">
+      <div class="card-body">
+        <h6>Recovered</h6>
+        <h2 class="mb-1">{{ my.my_claims_released }}</h2>
+        <span class="text-muted small">items returned to you</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h5 class="mb-3 mt-5">Quick actions</h5>
+<div class="row g-3">
+  <div class="col-md-6 col-lg-4">
+    <div class="card h-100"><div class="card-body">
+      <h5 class="card-title">Report a lost item</h5>
+      <p class="card-text">Lost something? File a report and we&apos;ll alert you when it&apos;s matched.</p>
+      <a class="btn btn-primary btn-sm" href="{{ url_for('reports.new') }}">Report</a>
+    </div></div>
+  </div>
+  <div class="col-md-6 col-lg-4">
+    <div class="card h-100"><div class="card-body">
+      <h5 class="card-title">Log a found item</h5>
+      <p class="card-text">Found something? Log it so the owner can find their way to it.</p>
+      <a class="btn btn-primary btn-sm" href="{{ url_for('found.new') }}">Log</a>
+    </div></div>
+  </div>
+  <div class="col-md-6 col-lg-4">
+    <div class="card h-100"><div class="card-body">
+      <h5 class="card-title">My reports</h5>
+      <p class="card-text">Track the status of items you&apos;ve reported.</p>
+      <a class="btn btn-outline-primary btn-sm" href="{{ url_for('reports.index', mine=1) }}">View mine</a>
+    </div></div>
+  </div>
+  <div class="col-md-6 col-lg-4">
+    <div class="card h-100"><div class="card-body">
+      <h5 class="card-title">Browse found items</h5>
+      <p class="card-text">Search through items others have turned in.</p>
+      <a class="btn btn-outline-primary btn-sm" href="{{ url_for('found.index') }}">Browse</a>
+    </div></div>
+  </div>
+  <div class="col-md-6 col-lg-4">
+    <div class="card h-100"><div class="card-body">
+      <h5 class="card-title">My claims</h5>
+      <p class="card-text">See pending and resolved recovery requests.</p>
+      <a class="btn btn-outline-primary btn-sm" href="{{ url_for('claims.index') }}">View</a>
+    </div></div>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Manage users{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h2 class="page-title">Users</h2>
+    <span class="text-muted small">{{ users|length }} registered</span>
+  </div>
+</div>
+
+<div class="table-responsive">
+  <table class="table align-middle">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Phone</th>
+        <th>Role</th>
+        <th>Joined</th>
+        <th style="min-width: 200px;">Change role</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for u in users %}
+      <tr>
+        <td class="text-muted">{{ u.user_id }}</td>
+        <td>
+          <strong>{{ u.name }}</strong>
+          {% if u.user_id == current_user.user_id %}
+            <span class="badge badge-soft-secondary ms-1">you</span>
+          {% endif %}
+        </td>
+        <td><span class="text-muted small">{{ u.email }}</span></td>
+        <td><span class="text-muted small">{{ u.phone or "&mdash;" }}</span></td>
+        <td>
+          {% set color = {"student": "secondary", "staff": "primary", "admin": "warning"}[u.role] %}
+          <span class="badge bg-{{ color }}">{{ u.role|capitalize }}</span>
+        </td>
+        <td class="small text-muted">{{ u.created_at.strftime("%b %d, %Y") }}</td>
+        <td>
+          <form method="post" action="{{ url_for('admin.set_role', user_id=u.user_id) }}"
+                class="d-flex gap-2">
+            <select name="role" class="form-select form-select-sm" style="max-width: 110px;">
+              <option value="student" {% if u.role == "student" %}selected{% endif %}>Student</option>
+              <option value="staff"   {% if u.role == "staff"   %}selected{% endif %}>Staff</option>
+              <option value="admin"   {% if u.role == "admin"   %}selected{% endif %}>Admin</option>
+            </select>
+            <button class="btn btn-sm btn-outline-primary">Save</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

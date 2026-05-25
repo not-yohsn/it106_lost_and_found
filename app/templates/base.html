@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Lost &amp; Found{% endblock %}</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <!-- Top-of-page progress bar shown during navigation between pages. -->
+  <div id="page-progress" aria-hidden="true"></div>
+  <nav class="navbar navbar-expand-lg site-nav">
+    <div class="container">
+      <a class="navbar-brand" href="{{ url_for('main.index') }}">Lost &amp; Found</a>
+
+      {% if current_user.is_authenticated %}
+        {% set is_staff = current_user.role in ("staff", "admin") %}
+        {% set is_admin = current_user.role == "admin" %}
+        <ul class="navbar-nav me-auto ms-3 flex-row gap-2">
+          <li class="nav-item"><a class="nav-link" href="{{ url_for('reports.index') }}">Lost</a></li>
+          <li class="nav-item"><a class="nav-link" href="{{ url_for('found.index') }}">Found</a></li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('claims.index') }}">
+              {% if is_staff %}Claims{% else %}My claims{% endif %}
+            </a>
+          </li>
+          {# Matches link visible to everyone. The list page itself filters
+             to the student's own matches when role != staff/admin. #}
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('matches.index') }}">
+              {% if is_staff %}Matches{% else %}My matches{% endif %}
+            </a>
+          </li>
+          {% if is_admin %}
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('admin.users') }}">Users</a></li>
+          {% endif %}
+        </ul>
+      {% endif %}
+
+      <div class="ms-auto d-flex gap-2 align-items-center">
+        {% if current_user.is_authenticated %}
+          <div class="notif-wrapper"
+               x-data="{ open: false }"
+               @click.outside="open = false">
+            <button type="button"
+                    class="btn btn-ghost btn-sm notif-button"
+                    @click="open = !open"
+                    title="Notifications">
+              <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/>
+                <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>
+              </svg>
+              <span class="d-none d-md-inline">Notifications</span>
+              {% if unread_notifications and unread_notifications > 0 %}
+                <span class="notif-dot" title="{{ unread_notifications }} unread"></span>
+              {% endif %}
+            </button>
+            <!--
+              Server-rendered dropdown. x-cloak hides it during the
+              first paint before Alpine has processed directives, then
+              Alpine removes x-cloak and x-show takes over visibility.
+              If Alpine never loads at all, x-cloak stays in place and
+              the dropdown stays hidden -- it never appears uninvited.
+            -->
+            <div class="notif-peek-wrapper" x-show="open" x-cloak x-transition>
+              {% include 'notifications/_peek.html' %}
+            </div>
+          </div>
+          <a class="btn btn-ghost btn-sm" href="{{ url_for('main.dashboard') }}">Dashboard</a>
+          <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('auth.logout') }}">Log out</a>
+        {% else %}
+          <a class="btn btn-ghost btn-sm" href="{{ url_for('auth.login') }}">Log in</a>
+          <a class="btn btn-primary btn-sm" href="{{ url_for('auth.register') }}">Register</a>
+        {% endif %}
+      </div>
+    </div>
+  </nav>
+
+  <main class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      Lost &amp; Found Management System &middot; IT106 &mdash; Caraga State University
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://unpkg.com/htmx.org@2.0.3"></script>
+  <script defer src="https://unpkg.com/alpinejs@3.14.1/dist/cdn.min.js"></script>
+
+  <!--
+    Page-navigation progress bar. When the user clicks an internal link or
+    submits a form, the bar slides from 0 to ~90% over 1 second. The new
+    page replaces the DOM (so the bar is naturally gone) and we mark it
+    'done' just before unload as a safety net.
+  -->
+  <script>
+    (function () {
+      const bar = document.getElementById('page-progress');
+      if (!bar) return;
+
+      function start() {
+        bar.classList.remove('done');
+        bar.classList.add('loading');
+      }
+      function finish() {
+        bar.classList.remove('loading');
+        bar.classList.add('done');
+      }
+
+      // Internal links and form submits trigger the bar.
+      document.addEventListener('click', function (e) {
+        const a = e.target.closest('a');
+        if (!a) return;
+        const href = a.getAttribute('href');
+        if (!href) return;
+        // Skip anchors, external links, mailto:, tel:, javascript:, target=_blank
+        if (href.startsWith('#')) return;
+        if (a.target === '_blank') return;
+        if (/^(mailto:|tel:|javascript:)/i.test(href)) return;
+        if (/^https?:/i.test(href)) {
+          // external host? skip
+          try {
+            const url = new URL(href, window.location.href);
+            if (url.host !== window.location.host) return;
+          } catch (_) { /* relative URL, treat as internal */ }
+        }
+        // Modifier keys = new tab; don't show the bar.
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+        start();
+      }, true);
+
+      document.addEventListener('submit', start, true);
+
+      // If the page is loaded from bfcache (back/forward), reset the bar.
+      window.addEventListener('pageshow', finish);
+    })();
+  </script>
+</body>
+</html>

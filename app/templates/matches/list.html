@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Matches{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h2 class="page-title">Confirmed matches</h2>
+</div>
+
+{% if matches %}
+<div class="table-responsive">
+  <table class="table align-middle">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Lost report</th>
+        <th>Found item</th>
+        <th>Confidence</th>
+        <th>Matched at</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for m in matches %}
+        <tr>
+          <td class="text-muted">{{ m.match_id }}</td>
+          <td>
+            <a href="{{ url_for('reports.detail', report_id=m.lost_report.report_id) }}">
+              {{ m.lost_report.item_name }}
+            </a>
+            <div class="small text-muted">by {{ m.lost_report.user.name }}</div>
+          </td>
+          <td>
+            <a href="{{ url_for('found.detail', item_id=m.found_item.item_id) }}">
+              {{ m.found_item.item_name }}
+            </a>
+          </td>
+          <td>
+            <span class="badge bg-info">{{ "%.0f%%"|format((m.confidence_score or 0) * 100) }}</span>
+          </td>
+          <td class="small text-muted">{{ m.matched_at.strftime("%b %d, %Y %H:%M") }}</td>
+          <td>
+            <a class="btn btn-sm btn-outline-primary"
+               href="{{ url_for('matches.detail', match_id=m.match_id) }}">View</a>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="empty-state">
+  <svg class="empty-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+  </svg>
+  <h3 class="empty-title">No matches confirmed yet</h3>
+  <p class="empty-text">Open a lost report or found item &mdash; staff can confirm matches from there.</p>
+</div>
+{% endif %}
+{% endblock %}
